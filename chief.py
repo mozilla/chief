@@ -40,7 +40,8 @@ def do_update(app_name, app_settings, webapp_ref, who):
     def history(status):
         redis = redislib.Redis(**settings.REDIS_BACKENDS['master'])
         d = {'timestamp':timestamp, 'datetime': datetime, 
-             'status': status, 'user': who, 'ref': webapp_ref}
+             'status': status, 'user': who, 'ref': webapp_ref,
+             'log_name': log_name}
         key = "%s:%s" % (app_name, timestamp)
         redis.hmset(key, d)
 
