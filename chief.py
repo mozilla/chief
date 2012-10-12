@@ -8,7 +8,7 @@ import redis as redislib
 from flask import Flask, Response, abort, request, render_template
 
 import settings
-from forms import DeployForm
+from forms import DeployForm, LoadtestForm
 
 
 app = Flask(__name__)
@@ -76,6 +76,21 @@ def get_history(app_name, app_settings):
         results.append(redis.hgetall(history))
     return sorted(results, key=lambda k: k['timestamp'], reverse=True)
 
+def do_loadtest(app_name, app_settings, repo):
+    log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
+    log_file = os.path.join(log_dir, 'loadtest')
+    deploy = app_settings['script']
+
+    yield 'Submitting loadtest: %s\n'  % repo
+    try:
+        output = open(log_file, 'w')
+        subprocess.check_call(['commander', deploy, 
+                               'loadtest:%s' % repo], stdout=output, 
+                              stderr=output)
+        yield 'Done!'
+    except:
+        yield 'Error, check logs!'
+        raise
 
 @app.route("/<webapp>", methods=['GET', 'POST'])
 def index(webapp):
@@ -107,3 +122,21 @@ def history(webapp):
     results = get_history(webapp, app_settings)
     return render_template("history.html", app_name=webapp,
                            results=results)
+
+@app.route("/<webapp>/loadtest", methods=['GET', 'POST'])
+def loadtest(webapp):
+    if webapp not in settings.WEBAPPS.keys():
+        abort(404)
+    else:
+        app_settings = settings.WEBAPPS[webapp]
+
+    errors = []
+    form = LoadtestForm(request.form)
+    if request.method == 'POST' and form.validate():
+        return Response(do_loadtest(webapp, app_settings,
+                                      form.repo.data),
+                            direct_passthrough=True,
+                            mimetype='text/plain')
+
+    return render_template("loadtest.html", app_name=webapp,
+                           form=form, errors=errors)
