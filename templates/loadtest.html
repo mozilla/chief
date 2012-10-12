@@ -1,0 +1,76 @@
+<title>CHIEF - {{ app_name }}: loadtest</title>
+<style>
+body {
+  text-align: center;
+}
+button {
+    background: url(/static/hammer.png) no-repeat center center,
+                -moz-linear-gradient(center top , #E0F70F, #E0F70F) repeat scroll 0 0 transparent;
+    border-radius: 100%;
+    box-shadow: 0 12px 3px rgba(0, 0, 0, 0.2),
+                0 6px 1px rgba(0, 0, 0, 0.8),
+                0 2px 0 rgba(255, 255, 255, 0.5) inset,
+                0 12px 48px rgba(255, 100, 16, 0.8) inset,
+                0 -12px 0 rgba(0, 0, 0, 0.2) inset;
+    color: #FFFFFF;
+    margin-top: 1em;
+    border: 0;
+    display: block;
+    font-size: 48px;
+    height: 220px;
+    letter-spacing: -3px;
+    line-height: 52px;
+    outline: medium none;
+    text-align: center;
+    margin: 1em auto;
+    text-decoration: none;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    width: 220px;
+    position: relative;
+    cursor: pointer;
+}
+
+button:before {
+    content: '';
+    display: block;
+    width: 217px;
+    height: 220px;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    border-radius: 100%;
+    -moz-transition: .7s box-shadow ease;
+    box-shadow: 0 0 transparent;
+}
+button:hover:before {
+    box-shadow: 0 0 50px yellow;
+}
+button:active {
+    border-radius: 100% 100% 100% 100%;
+    box-shadow: 0 12px 3px rgba(0, 0, 0, 0.2),
+                0 2px 1px rgba(0, 0, 0, 0.8),
+                0 2px 0 rgba(255, 255, 255, 0.5) inset,
+                0 12px 48px rgba(255, 100, 16, 0.8) inset,
+                0 -12px 0 rgba(0, 0, 0, 0.2) inset;
+    top: 4px;
+}
+</style>
+<h1>loadtest {{ app_name }}.</h1>
+{% if form.errors or errors %}
+    <ul class="errors">
+           {% for field_name, field_errors in form.errors.iteritems() if field_errors %}
+               {% for error in field_errors %}
+                   <li>{{ form[field_name].label }}: {{ error }}</li>
+               {% endfor %}
+           {% endfor %}
+           {% for error in errors %}
+                <li>{{ error }}</li>
+           {% endfor %}
+    </ul>
+{% endif %}
+<form method="post" action="">
+  {{ form.repo(placeholder=form.repo.name) }}
+  <br>
+  <button title="BIG RED BUTTON"></button>
+</form>
