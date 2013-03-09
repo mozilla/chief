@@ -18,4 +18,5 @@ Chief is a simple web interface to assist in the deployment of web applications.
 
 # Change Log
 
-* v0.1 tagged to make an rpm for deployments, by @solarce
+* v0.1.1 - adds a logs directory, fixes #2
+* v0.1   - tagged to make an rpm for deployments, by @solarce, fixes #1
