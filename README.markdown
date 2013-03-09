@@ -15,3 +15,7 @@ Chief is a simple web interface to assist in the deployment of web applications.
 # Requirements
 
 * [Commander](https://github.com/oremj/commander)
+
+# Change Log
+
+* v0.1 tagged to make an rpm for deployments, by @solarce
