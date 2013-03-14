@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import time
+import platform
 
 import redis as redislib
 from flask import Flask, Response, abort, request, render_template
@@ -14,7 +15,7 @@ from forms import DeployForm, LoadtestForm
 app = Flask(__name__)
 
 os.environ['PYTHONUNBUFFERED'] = 'go time'
-
+servername = platform.node()
 
 def do_update(app_name, app_settings, webapp_ref, who):
     deploy = app_settings['script']
@@ -95,7 +96,7 @@ def do_loadtest(app_name, app_settings, repo):
 @app.route("/")
 def hello():
     webapps = settings.WEBAPPS
-    return render_template("webapp_list.html", web_apps = webapps)
+    return render_template("webapp_list.html", web_apps = webapps, server_name = servername)
 
 @app.route("/<webapp>", methods=['GET', 'POST'])
 def index(webapp):
