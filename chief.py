@@ -92,6 +92,11 @@ def do_loadtest(app_name, app_settings, repo):
         yield 'Error, check logs!'
         raise
 
+@app.route("/")
+def hello():
+    webapps = settings.WEBAPPS
+    return render_template("webapp_list.html", web_apps = webapps)
+
 @app.route("/<webapp>", methods=['GET', 'POST'])
 def index(webapp):
     if webapp not in settings.WEBAPPS.keys():
