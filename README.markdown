@@ -24,6 +24,7 @@ Chief is a simple web interface to assist in the deployment of web applications.
 
 # Change Log
 
+* v0.1.2.1 - fix for /chief/ not including a line break, fixes #5
 * v0.1.2 - adds proper index page for /chief/, fixes #3
 * v0.1.1 - adds a logs directory, fixes #2
 * v0.1   - tagged to make an rpm for deployments, by @solarce, fixes #1
