@@ -34,6 +34,15 @@
 </style>
 </head>
 <body>
+    <p>
+        {% if page > 0 %}
+            <a href="?page={{ page - 1 }}">Prev</a>
+        {% else %}
+            Prev
+        {% endif %}
+        | PAGE {{ page }} |
+        <a href="?page={{ page + 1 }}">Next</a>
+    </p>
     <table id="table">
         <thead>
             <tr>
@@ -56,4 +65,13 @@
             {% endfor %}
         </tbody>
     </table>
+    <p>
+        {% if page > 0 %}
+            <a href="?page={{ page - 1 }}">Prev</a>
+        {% else %}
+            Prev
+        {% endif %}
+        | PAGE {{ page }} |
+        <a href="?page={{ page + 1 }}">Next</a>
+    </p>
 </html>

@@ -125,8 +125,16 @@ def history(webapp):
         abort(404)
     else:
         app_settings = settings.WEBAPPS[webapp]
+
+    # TODO: This pages results poorly by pulling *all* the results
+    # back then slicing the returned list. It'd be better to pull just
+    # the results we were going to show.
+    page = request.GET.get('page', 0)
     results = get_history(webapp, app_settings)
+    results = results[page * 50:(page + 1) * 50]
+
     return render_template("history.html", app_name=webapp,
+                           page=page,
                            results=results)
 
 @app.route("/<webapp>/loadtest", methods=['GET', 'POST'])
