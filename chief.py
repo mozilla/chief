@@ -81,17 +81,13 @@ def do_update(app_name, app_settings, webapp_ref, who):
             prefix_notify('%s/%s/logs/%s' % (settings.LOG_ROOT,
                                              app_name, log_name))
 
-        yield 'Updating! revision: %s\n' % webapp_ref
-
         run('pre_update:%s' % webapp_ref, output)
         pub('PUSH')
-        yield 'We have the new code!\n'
         prefix_notify('We have the new code!')
 
         prefix_notify('Running update tasks.')
         run('update', output)
         pub('UPDATE')
-        yield "Code has been updated locally!\n"
         prefix_notify('Update tasks complete.')
 
         prefix_notify('Deploying to webheads.')
@@ -99,7 +95,6 @@ def do_update(app_name, app_settings, webapp_ref, who):
         pub('DONE')
         history('Success')
         prefix_notify('Push complete!')
-        yield 'All done!'
     except:
         pub('FAIL')
         history('Fail')
