@@ -50,6 +50,9 @@ def do_update(app_name, app_settings, webapp_ref, who):
     log_name = "%s.%s" % (re.sub('[^A-z0-9_-]', '.', webapp_ref), timestamp)
     log_file = os.path.join(log_dir, log_name)
 
+    def prefix_notify(msg):
+        notify('%s:%s %s' % (app_name, webapp_ref, msg))
+
     def run(task, output):
         subprocess.check_call(['commander', deploy, task],
                               stdout=output, stderr=output)
@@ -75,27 +78,32 @@ def do_update(app_name, app_settings, webapp_ref, who):
         notify('%s is pushing %s - %s' % (who, app_name, webapp_ref))
 
         if getattr(settings, 'LOG_ROOT', None):
-            notify('%s/%s/logs/%s' % (settings.LOG_ROOT, app_name, log_name))
+            prefix_notify('%s/%s/logs/%s' % (settings.LOG_ROOT,
+                                             app_name, log_name))
 
         yield 'Updating! revision: %s\n' % webapp_ref
 
         run('pre_update:%s' % webapp_ref, output)
         pub('PUSH')
         yield 'We have the new code!\n'
+        prefix_notify('We have the new code!')
 
+        prefix_notify('Running update tasks.')
         run('update', output)
         pub('UPDATE')
         yield "Code has been updated locally!\n"
+        prefix_notify('Update tasks complete.')
 
+        prefix_notify('Deploying to webheads.')
         run('deploy', output)
         pub('DONE')
         history('Success')
-        notify('Push complete!')
+        prefix_notify('Push complete!')
         yield 'All done!'
     except:
         pub('FAIL')
         history('Fail')
-        notify('Something terrible has happened!')
+        prefix_notify('Something terrible has happened!')
         raise
 
 
