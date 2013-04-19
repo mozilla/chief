@@ -17,6 +17,28 @@ app = Flask(__name__)
 os.environ['PYTHONUNBUFFERED'] = 'go time'
 servername = platform.node()
 
+
+def setup_notifier():
+    notifier_endpoint = getattr(settings, 'NOTIFIER_ENDPOINT', None)
+    notifier_key = getattr(settings, 'NOTIFIER_KEY', None)
+    null_notify = lambda a: None
+    if not notifier_endpoint:
+        return null_notify
+
+    try:
+        import pushbotnotify
+    except ImportError:
+        return null_notify
+
+    notifier = pushbotnotify.Notifier(endpoint=notifier_endpoint,
+                                      api_key=notifier_key)
+
+    return notifier.notify
+
+
+notify = setup_notifier()
+
+
 def do_update(app_name, app_settings, webapp_ref, who):
     deploy = app_settings['script']
     log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
@@ -40,7 +62,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
 
     def history(status):
         redis = redislib.Redis(**settings.REDIS_BACKENDS['master'])
-        d = {'timestamp':timestamp, 'datetime': datetime, 
+        d = {'timestamp': timestamp, 'datetime': datetime,
              'status': status, 'user': who, 'ref': webapp_ref,
              'log_name': log_name}
         key = "%s:%s" % (app_name, timestamp)
@@ -50,6 +72,11 @@ def do_update(app_name, app_settings, webapp_ref, who):
         output = open(log_file, 'a')
 
         pub('BEGIN')
+        notify('%s is pushing %s - %s' % (who, app_name, webapp_ref))
+
+        if getattr(settings, 'LOG_ROOT', None):
+            notify('%s/%s/logs/%s' % (settings.LOG_ROOT, app_name, log_name))
+
         yield 'Updating! revision: %s\n' % webapp_ref
 
         run('pre_update:%s' % webapp_ref, output)
@@ -63,11 +90,14 @@ def do_update(app_name, app_settings, webapp_ref, who):
         run('deploy', output)
         pub('DONE')
         history('Success')
+        notify('Push complete!')
         yield 'All done!'
     except:
         pub('FAIL')
         history('Fail')
+        notify('Something terrible has happened!')
         raise
+
 
 def get_history(app_name, app_settings):
     redis = redislib.Redis(**settings.REDIS_BACKENDS['master'])
@@ -77,26 +107,30 @@ def get_history(app_name, app_settings):
         results.append(redis.hgetall(history))
     return sorted(results, key=lambda k: k['timestamp'], reverse=True)
 
+
 def do_loadtest(app_name, app_settings, repo):
     log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
     log_file = os.path.join(log_dir, 'loadtest')
     deploy = app_settings['script']
 
-    yield 'Submitting loadtest: %s\n'  % repo
+    yield 'Submitting loadtest: %s\n' % repo
     try:
         output = open(log_file, 'w')
-        subprocess.check_call(['commander', deploy, 
-                               'loadtest:%s' % repo], stdout=output, 
+        subprocess.check_call(['commander', deploy,
+                               'loadtest:%s' % repo], stdout=output,
                               stderr=output)
         yield 'Done!'
     except:
         yield 'Error, check logs!'
         raise
 
+
 @app.route("/")
 def hello():
     webapps = settings.WEBAPPS
-    return render_template("webapp_list.html", web_apps = webapps, server_name = servername)
+    return render_template("webapp_list.html", web_apps=webapps,
+                           server_name=servername)
+
 
 @app.route("/<webapp>", methods=['GET', 'POST'])
 def index(webapp):
@@ -119,6 +153,7 @@ def index(webapp):
     return render_template("index.html", app_name=webapp,
                            form=form, errors=errors)
 
+
 @app.route("/<webapp>/history", methods=['GET'])
 def history(webapp):
     if webapp not in settings.WEBAPPS.keys():
@@ -128,6 +163,7 @@ def history(webapp):
     results = get_history(webapp, app_settings)
     return render_template("history.html", app_name=webapp,
                            results=results)
+
 
 @app.route("/<webapp>/loadtest", methods=['GET', 'POST'])
 def loadtest(webapp):
@@ -140,9 +176,9 @@ def loadtest(webapp):
     form = LoadtestForm(request.form)
     if request.method == 'POST' and form.validate():
         return Response(do_loadtest(webapp, app_settings,
-                                      form.repo.data),
-                            direct_passthrough=True,
-                            mimetype='text/plain')
+                                    form.repo.data),
+                        direct_passthrough=True,
+                        mimetype='text/plain')
 
     return render_template("loadtest.html", app_name=webapp,
                            form=form, errors=errors)

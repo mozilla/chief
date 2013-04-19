@@ -22,3 +22,8 @@ REDIS_BACKENDS = {
         'socket_timeout': 0.1,
     },
 }
+
+NOTIFIER_ENDPOINT = ''
+NOTIFIER_KEY = ''
+
+LOG_ROOT = 'http://host/chief'
