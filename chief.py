@@ -18,25 +18,9 @@ os.environ['PYTHONUNBUFFERED'] = 'go time'
 servername = platform.node()
 
 
-def setup_notifier():
-    notifier_endpoint = getattr(settings, 'NOTIFIER_ENDPOINT', None)
-    notifier_key = getattr(settings, 'NOTIFIER_KEY', None)
-    null_notify = lambda a: None
-    if not notifier_endpoint:
-        return null_notify
-
-    try:
-        import pushbotnotify
-    except ImportError:
-        return null_notify
-
-    notifier = pushbotnotify.Notifier(endpoint=notifier_endpoint,
-                                      api_key=notifier_key)
-
-    return notifier.notify
-
-
-notify = setup_notifier()
+def notify(msg):
+    for notifier in getattr(settings, 'NOTIFIERS', []):
+        notifier(msg)
 
 
 def do_update(app_name, app_settings, webapp_ref, who):

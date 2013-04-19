@@ -23,7 +23,7 @@ REDIS_BACKENDS = {
     },
 }
 
-NOTIFIER_ENDPOINT = ''
-NOTIFIER_KEY = ''
+# List of functions taking one arg, a msg.
+NOTIFIERS = []
 
 LOG_ROOT = 'http://host/chief'
