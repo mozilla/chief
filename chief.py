@@ -35,7 +35,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
     log_file = os.path.join(log_dir, log_name)
 
     def prefix_notify(msg):
-        notify('%s:%s %s' % (app_name, webapp_ref, msg))
+        notify('%s:%s %s' % (app_name, webapp_ref[:12], msg))
 
     def run(task, output):
         subprocess.check_call(['commander', deploy, task],
