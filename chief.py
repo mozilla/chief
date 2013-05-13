@@ -18,14 +18,24 @@ os.environ['PYTHONUNBUFFERED'] = 'go time'
 servername = platform.node()
 
 
+def fix_settings(app_settings):
+    script = app_settings.get('script', None)
+
+    if script:
+        app_settings = app_settings.copy()
+        app_settings['pre_update'] = ['commander', script, 'pre_update:{ref}']
+        app_settings['update'] = ['commander', script, 'update']
+        app_settings['deploy'] = ['commander', script, 'deploy']
+
+    return app_settings
+
+
 def notify(msg):
     for notifier in getattr(settings, 'NOTIFIERS', []):
         notifier(msg)
 
 
 def do_update(app_name, app_settings, webapp_ref, who):
-    deploy = app_settings['script']
-    task_runner = app_settings.get('task_runner', 'commander')
     log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
     timestamp = int(time.time())
     datetime = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
@@ -39,7 +49,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
         notify('%s:%s %s' % (app_name, webapp_ref[:12], msg))
 
     def run(task, output):
-        subprocess.check_call([task_runner, deploy, task],
+        subprocess.check_call(task,
                               stdout=output, stderr=output)
 
     def pub(event):
@@ -66,20 +76,27 @@ def do_update(app_name, app_settings, webapp_ref, who):
             prefix_notify('%s/%s/logs/%s' % (settings.LOG_ROOT,
                                              app_name, log_name))
 
-        run('pre_update:%s' % webapp_ref, output)
+        pre_update_head = app_settings['pre_update'][:-1]
+        pre_update_tail = [
+            app_settings['pre_update'][-1].format(ref=webapp_ref)]
+        run(pre_update_head + pre_update_tail, output)
+
         pub('PUSH')
         prefix_notify('We have the new code!')
-
         prefix_notify('Running update tasks.')
-        run('update', output)
+
+        run(app_settings['update'], output)
+
         pub('UPDATE')
         prefix_notify('Update tasks complete.')
-
         prefix_notify('Deploying to webheads.')
-        run('deploy', output)
+
+        run(app_settings['deploy'], output)
+
         pub('DONE')
         history('Success')
         prefix_notify('Push complete!')
+
     except:
         pub('FAIL')
         history('Fail')
@@ -88,6 +105,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
 
 
 def get_history(app_name, app_settings):
+    settings.REDIS_BACKENDS['master']['decode_responses'] = True
     redis = redislib.Redis(**settings.REDIS_BACKENDS['master'])
     results = []
     key_prefix = "%s:*" % app_name
@@ -100,12 +118,11 @@ def do_loadtest(app_name, app_settings, repo):
     log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
     log_file = os.path.join(log_dir, 'loadtest')
     deploy = app_settings['script']
-    task_runner = app_settings.get('task_runner', 'commander')
 
     yield 'Submitting loadtest: %s\n' % repo
     try:
         output = open(log_file, 'w')
-        subprocess.check_call([task_runner, deploy,
+        subprocess.check_call(['commander', deploy,
                                'loadtest:%s' % repo], stdout=output,
                               stderr=output)
         yield 'Done!'
@@ -126,7 +143,7 @@ def index(webapp):
     if webapp not in settings.WEBAPPS.keys():
         abort(404)
     else:
-        app_settings = settings.WEBAPPS[webapp]
+        app_settings = fix_settings(settings.WEBAPPS[webapp])
 
     errors = []
     form = DeployForm(request.form)
