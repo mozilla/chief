@@ -25,6 +25,7 @@ def notify(msg):
 
 def do_update(app_name, app_settings, webapp_ref, who):
     deploy = app_settings['script']
+    task_runner = app_settings.get('task_runner', 'commander')
     log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
     timestamp = int(time.time())
     datetime = time.strftime("%b %d %Y %H:%M:%S", time.localtime())
@@ -38,7 +39,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
         notify('%s:%s %s' % (app_name, webapp_ref[:12], msg))
 
     def run(task, output):
-        subprocess.check_call(['commander', deploy, task],
+        subprocess.check_call([task_runner, deploy, task],
                               stdout=output, stderr=output)
 
     def pub(event):
@@ -99,11 +100,12 @@ def do_loadtest(app_name, app_settings, repo):
     log_dir = os.path.join(settings.OUTPUT_DIR, app_name)
     log_file = os.path.join(log_dir, 'loadtest')
     deploy = app_settings['script']
+    task_runner = app_settings.get('task_runner', 'commander')
 
     yield 'Submitting loadtest: %s\n' % repo
     try:
         output = open(log_file, 'w')
-        subprocess.check_call(['commander', deploy,
+        subprocess.check_call([task_runner, deploy,
                                'loadtest:%s' % repo], stdout=output,
                               stderr=output)
         yield 'Done!'
