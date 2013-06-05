@@ -25,7 +25,7 @@ Chief is a simple web interface to assist in the deployment of web applications.
 # Change Log
 
 * v0.1.3 - adds support for history pagination, support for arbitrary
-  task runners, and some notification supports.
+  task runners, and some notification support.
   Thanks @oremj, @cturra, and @willkg
 * v0.1.2.1 - fix for /chief/ not including a line break, fixes #5
 * v0.1.2 - adds proper index page for /chief/, fixes #3
