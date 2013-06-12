@@ -170,7 +170,7 @@ def history(webapp):
     # TODO: This pages results poorly by pulling *all* the results
     # back then slicing the returned list. It'd be better to pull just
     # the results we were going to show.
-    page = request.args.get('page', 0)
+    page = int(request.args.get('page', 0))
     results = get_history(webapp, app_settings)
     results = results[page * 50:(page + 1) * 50]
 
