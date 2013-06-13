@@ -24,6 +24,7 @@ Chief is a simple web interface to assist in the deployment of web applications.
 
 # Change Log
 
+* v0.1.4 - fixes bug with history page and unicode characters in redis
 * v0.1.3 - adds support for history pagination, support for arbitrary
   task runners, and some notification support.
   Thanks @oremj, @cturra, and @willkg
