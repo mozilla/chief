@@ -20,7 +20,11 @@ Chief is a simple web interface to assist in the deployment of web applications.
 
 1. Install [fpm](https://github.com/jordansissel/fpm/wiki)
 2. Use fpm like the following example:
-`sudo fpm -s dir -t rpm -n "chief" -v 0.1.2 --url "http://github.com/mozilla/chief/" --provides chief -a all --description "Chief is a simple web interface to assist in the deployment of web applications." --maintainer "infra-webops@mozilla.com" -d gunicorn -d python26-redis -d Flask -d python-werkzeug -d python-wtforms -d Jinja2 --prefix "/var/www/chief" --exclude ".git*" /path/to/chief/`
+`sudo fpm -s dir -t rpm -n "chief" -v 0.1.2 --url "http://github.com/mozilla/chief/" `
+`--provides chief -a all --description "Chief is a simple web interface to assist in `
+`the deployment of web applications." --maintainer "infra-webops@mozilla.com" `
+`-d gunicorn -d python26-redis -d Flask -d python-werkzeug -d python-wtforms -d Jinja2 `
+`--prefix "/var/www/chief" --exclude ".git*" /path/to/chief/`
 
 # Change Log
 
