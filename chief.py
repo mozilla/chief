@@ -94,6 +94,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
         run(app_settings['deploy'], output)
 
         pub('DONE')
+        changelog(app_name)
         history('Success')
         prefix_notify('Push complete!')
 
@@ -103,6 +104,13 @@ def do_update(app_name, app_settings, webapp_ref, who):
         prefix_notify('Something terrible has happened!')
         raise
 
+def changelog(app_name):
+    import requests
+    description = os.uname()[1] + "; Chief: " + app_name
+    payload = {"criticality": 1, "unix_timestamp": int(time.time()), "category": "deploy", "description": description}
+    url = 'https://changelog.paas.allizom.org/api/events'
+    headers = {'content-type': 'application/json'}
+    r = requests.post(url, data=json.dumps(payload), headers=headers)
 
 def get_history(app_name, app_settings):
     settings.REDIS_BACKENDS['master']['decode_responses'] = True
