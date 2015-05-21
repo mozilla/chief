@@ -72,8 +72,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
         output = open(log_file, 'a')
 
         pub('BEGIN')
-        notify('%s is pushing %s - %s' % (who, app_name, webapp_ref))
-        yield '%s is pushing %s - %s\n' % (who, app_name, webapp_ref)
+        yield prefix_notify('%s is pushing %s - %s\n' % (who, app_name, webapp_ref))
 
         if getattr(settings, 'LOG_ROOT', None):
             yield prefix_notify('%s/%s/logs/%s' % (settings.LOG_ROOT,
