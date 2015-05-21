@@ -33,7 +33,7 @@ def fix_settings(app_settings):
 def notify(msg):
     for notifier in getattr(settings, 'NOTIFIERS', []):
         notifier(msg)
-    return msg
+    return bytes(msg)
 
 
 def do_update(app_name, app_settings, webapp_ref, who):
@@ -48,7 +48,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
 
     def prefix_notify(msg):
         notify('%s:%s %s' % (app_name, webapp_ref[:12], msg))
-        return msg
+        return bytes(msg)
 
     def run(task, output):
         subprocess.check_call(task,
