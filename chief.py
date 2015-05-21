@@ -76,7 +76,7 @@ def do_update(app_name, app_settings, webapp_ref, who):
 
         if getattr(settings, 'LOG_ROOT', None):
             yield prefix_notify('%s/%s/logs/%s\n' % (settings.LOG_ROOT,
-                                             app_name, log_name))
+                                                     app_name, log_name))
 
         pre_update_head = app_settings['pre_update'][:-1]
         pre_update_tail = [
