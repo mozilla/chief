@@ -75,8 +75,8 @@ def do_update(app_name, app_settings, webapp_ref, who):
         yield prefix_notify('%s is pushing %s - %s\n' % (who, app_name, webapp_ref))
 
         if getattr(settings, 'LOG_ROOT', None):
-            yield prefix_notify('%s/%s/logs/%s' % (settings.LOG_ROOT,
-                                             app_name, log_name)) + '\n'
+            yield prefix_notify('%s/%s/logs/%s\n' % (settings.LOG_ROOT,
+                                             app_name, log_name))
 
         pre_update_head = app_settings['pre_update'][:-1]
         pre_update_tail = [
@@ -84,26 +84,26 @@ def do_update(app_name, app_settings, webapp_ref, who):
         run(pre_update_head + pre_update_tail, output)
 
         pub('PUSH')
-        yield prefix_notify('We have the new code!') + '\n'
-        yield prefix_notify('Running update tasks.') + '\n'
+        yield prefix_notify('We have the new code!\n')
+        yield prefix_notify('Running update tasks.\n')
 
         run(app_settings['update'], output)
 
         pub('UPDATE')
-        yield prefix_notify('Update tasks complete.') + '\n'
-        yield prefix_notify('Deploying to webheads.') + '\n'
+        yield prefix_notify('Update tasks complete.\n')
+        yield prefix_notify('Deploying to webheads.\n')
 
         run(app_settings['deploy'], output)
 
         pub('DONE')
         changelog(app_name)
         history('Success')
-        yield prefix_notify('Push complete!') + '\n'
+        yield prefix_notify('Push complete!\n')
 
     except:
         pub('FAIL')
         history('Fail')
-        yield prefix_notify('Something terrible has happened!') + '\n'
+        yield prefix_notify('Something terrible has happened!\n')
         raise
 
 def changelog(app_name):
