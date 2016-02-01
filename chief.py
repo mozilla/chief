@@ -110,7 +110,7 @@ def changelog(app_name):
     import requests
     description = os.uname()[1] + "; Chief: " + app_name
     payload = {"criticality": 1, "unix_timestamp": int(time.time()), "category": "deploy", "description": description}
-    url = 'https://changelog.paas.allizom.org/api/events'
+    url = 'https://changelog.allizom.org/api/events'
     headers = {'content-type': 'application/json'}
     r = requests.post(url, data=json.dumps(payload), headers=headers)
 
